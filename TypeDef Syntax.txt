@@ -1,0 +1,5 @@
+to install the typings --> npm i typings -g
+typings install dt~node --global
+typings install dt~express 
+for adding this : express-serve-static-core
+typings install dt~serve-static dt~express-serve-static-core --g
