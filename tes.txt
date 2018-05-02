@@ -1,0 +1,73 @@
+constructor(props) {
+        super(props);
+        this.state = {
+            displayModal: false,
+            displayUrl: '',
+            dataFromDb: [],
+            displayName: '',
+            width: 0,
+            height: 0,
+        }
+        this.onModalClose = this.onModalClose.bind(this);
+        this.onShowModal = this.onShowModal.bind(this);
+        this.handleResize = this.handleResize.bind(this);
+    }
+    onModalClose() {
+        this.setState({ displayModal: false });
+    }
+    onShowModal(url, name) {  
+        return () => {
+            // window.open(url,'1525123233697','width=700,height=500,toolbar=0,menubar=0,location=0,status=1,scrollbars=1,resizable=1,left=0,top=0');
+             this.setState({ displayModal: true, displayUrl: url, displayName:name});
+        }
+    }
+
+    handleResize() {
+        const width = window.innerWidth;
+        const height = window.innerHeight
+        this.setState({ width, height });
+    }
+    componentWillMount() {
+        window.addEventListener("resize", () => { this.handleResize() }, true);
+    }
+    componentDidMount() {
+        fetch('http://localhost:5000/api/getLinks')
+            .then(res => {
+                return res.json();
+            })
+            .then(dataFromDb => {
+                this.setState({ dataFromDb });
+            })
+            .catch(err => {
+
+                this.setState({});
+            })
+        //const dummyData = 
+        // [{ name: 'policyadministration', displayName: 'Policy Administration', url: 'http://www.google.com/' }, { name: 'priorauthorization', displayName: 'Prior authorization Ex. Pharma', url: 'http://www.youtube.com/embed/xDMP3i36naA' }]
+        //this.setState({ dataFromDb: dummyData });
+        this.handleResize();
+    }
+    componentWillUnmount() {
+        window.removeEventListener("resize", this.handleResize, true);
+    }
+
+    render() {
+        var { displayModal, displayUrl, width, dataFromDb, height } = this.state;
+        return (
+            <div className="tabs-panel is-active" id="tabs-panel-4 ">
+                <div className="row expanded flex ">
+
+                    {_.map(dataFromDb, (data) => {
+                        return <div className="tag fill gw-blue" onClick={this.onShowModal(data.url,data.name)} key={data.name}>
+                        <a href="javascript:void(0)"><button className = "buttonStyle">{data.name}</button></a>
+                    </div>
+                    })}
+                </div>
+
+                {displayModal && <IFrame url={this.state.displayUrl} pageName={this.state.displayName} height = {height} onClose={this.onModalClose} width={width} />}
+            </div>
+        );
+
+    }
+}
+
